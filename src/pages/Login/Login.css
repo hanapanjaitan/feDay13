@@ -1,0 +1,9 @@
+.login-kotak{
+    border: 5px whitesmoke solid;
+    width: 50%;
+    height: 40%;
+    border-radius: 20px;
+    color: whitesmoke;
+    flex-direction: column;
+
+}

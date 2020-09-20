@@ -1,0 +1,146 @@
+{
+    "users": [
+        {
+        "id": 1,
+        "username": "hana",
+        "password": "1234",
+        "role": "user"
+        },
+        {
+        "id": 2,
+        "username": "kiki",
+        "password": "abcd",
+        "role": "admin"
+        },
+        {
+        "username": "bambang",
+        "password": "1234",
+        "role": "user",
+        "id": 3
+        }
+    ],
+    "products": [
+        {
+        "namatrip": "Japan",
+        "gambar": "https://images4.alphacoders.com/289/thumb-1920-289526.jpg",
+        "tanggalStart": "2020-09-17",
+        "tanggalEnd": "2020-09-25",
+        "harga": "500000",
+        "deskripsi": "Japan go goooo",
+        "id": 2
+        },
+        {
+        "namatrip": "New York",
+        "gambar": "https://images8.alphacoders.com/388/thumb-1920-388770.jpg",
+        "tanggalStart": "2020-10-23",
+        "tanggalEnd": "2020-10-30",
+        "harga": "1000000",
+        "deskripsi": "Let's meet some original McDonald",
+        "id": 3
+        },
+        {
+        "namatrip": "London",
+        "gambar": "https://images8.alphacoders.com/835/thumb-1920-835050.jpg",
+        "tanggalStart": "2020-11-10",
+        "tanggalEnd": "2020-11-16",
+        "harga": "800000",
+        "deskripsi": "Long live the queen",
+        "id": 4
+        },
+        {
+        "namatrip": "Paris",
+        "gambar": "https://images6.alphacoders.com/703/thumb-1920-703494.jpg",
+        "tanggalStart": "2020-10-09",
+        "tanggalEnd": "2020-10-17",
+        "harga": "760000",
+        "deskripsi": "Paris on my birthday",
+        "id": 5
+        },
+        {
+        "namatrip": "Maldives",
+        "gambar": "https://images2.alphacoders.com/517/thumb-1920-517458.jpg",
+        "tanggalStart": "2021-08-09",
+        "tanggalEnd": "2021-08-17",
+        "harga": "1000000",
+        "deskripsi": "Honeymoon with your love",
+        "id": 6
+        },
+        {
+        "namatrip": "China",
+        "gambar": "https://images7.alphacoders.com/898/thumb-1920-898714.jpg",
+        "tanggalStart": 1623801600000,
+        "tanggalEnd": 1625011200000,
+        "harga": "600000",
+        "deskripsi": "Let's see Mulan and the great wall express lololol",
+        "id": 7
+        }
+    ],
+    "carts": [
+        {
+        "userId": 1,
+        "productId": 2,
+        "qty": 2,
+        "id": 1
+        },
+        {
+        "userId": 1,
+        "productId": 4,
+        "qty": 5,
+        "id": 2
+        },
+        {
+        "userId": 3,
+        "productId": 2,
+        "qty": 4,
+        "id": 3
+        }
+    ],
+    "transactions": [
+        {
+        "status": "Completed",
+        "userId": 1,
+        "tanggalPembayaran": "",
+        "metode": "cc",
+        "buktiPembayaran": "121212121121",
+        "id": 2
+        },
+        {
+        "status": "WaitingAdmin",
+        "userId": 1,
+        "tanggalPembayaran": "",
+        "metode": "upload",
+        "buktiPembayaran": "https://ecs7.tokopedia.net/img/cache/700/product-1/2020/1/21/5677080/5677080_cf2ef623-8e05-4c90-80ec-0a6edb107d3e_648_648.jpg",
+        "id": 3
+        }
+    ],
+    "transactionDetails": [
+        {
+        "transactionId": 2,
+        "productId": 2,
+        "price": 500000,
+        "qty": 1,
+        "id": 2
+        },
+        {
+        "transactionId": 2,
+        "productId": 4,
+        "price": 800000,
+        "qty": 3,
+        "id": 3
+        },
+        {
+        "transactionId": 2,
+        "productId": 5,
+        "price": 760000,
+        "qty": 2,
+        "id": 4
+        },
+        {
+        "transactionId": 3,
+        "productId": 4,
+        "price": 800000,
+        "qty": 1,
+        "id": 5
+        }
+    ]
+}

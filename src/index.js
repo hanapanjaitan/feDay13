@@ -2,11 +2,21 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
+import {Provider} from 'react-redux'
+import {createStore, applyMiddleware} from 'redux'
+import Reducers from './redux/Reducers'
 import * as serviceWorker from './serviceWorker';
+import {BrowserRouter} from 'react-router-dom'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import Thunk from 'redux-thunk'
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Provider store={createStore(Reducers,{},applyMiddleware(Thunk))}>
+      <BrowserRouter>
+      <App />
+      </BrowserRouter>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );
