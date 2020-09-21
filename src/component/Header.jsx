@@ -15,6 +15,10 @@ import Badge from '@material-ui/core/Badge';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import {LogoutThunk} from './../redux/Actions'
 import {HOME_URL} from './../helpers/idrformat'
+import Box from '@material-ui/core/Box';
+import Popover from '@material-ui/core/Popover';
+import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
+import { ButtonUi } from '.';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,6 +61,24 @@ function ButtonAppBar(props) {
     // LogoutThunk(props.username, props.password)
   }
 
+  const renderCart=()=>{
+    return props.cart.map((val)=>{
+      return (
+        <div className='d-flex '>
+          <div className='m-2' style={{maxWidth:'200px'}}>
+            <img width='100%' heigth='100%' src={val.product.gambar} alt={val.product.namatrip}/>
+          </div>
+          <div className='m-2'>
+            {val.product.namatrip}
+          </div>
+          <div className='m-2'>
+            qty: {val.qty}
+          </div>
+        </div>
+      )
+    })
+  }
+
   return (
     <div className={classes.root}>
       <AppBar className={classes.warna} position="static">
@@ -71,20 +93,62 @@ function ButtonAppBar(props) {
           </Typography>
           {
             props.role === 'admin' ?
-            <Link to='/manageAdmin' style={{textDecoration:'none', color:'white'}}>
-              <Button color="inherit">Admin</Button>
+            <>
+            <Link to='/profileAdmin' style={{textDecoration:'none', color:'white'}}>
+              <Button color="inherit">Manage Transaksi</Button>
             </Link>
+            <Link to='/manageAdmin' style={{textDecoration:'none', color:'white'}}>
+              <Button color="inherit">Manage Products</Button>
+            </Link>
+            </>
             :
             props.role === 'user'?
-            <Link to='/carts' style={{textDecoration:'none', color:'white'}}>
-              <Button color="inherit" >
-                <IconButton aria-label="cart">
-                  <StyledBadge badgeContent={props.cart.length} color="secondary">
-                    <ShoppingCartIcon />
-                  </StyledBadge>
-                </IconButton>
-              </Button>
-          </Link>
+            <>
+              <PopupState variant="popover" popupId="demo-popup-popover">
+              {(popupState) => (
+                <div>
+                  <Button variant="contained" color="primary" {...bindTrigger(popupState)}>
+                    <IconButton aria-label="cart">
+                      <StyledBadge badgeContent={props.cart.length} color="secondary">
+                        <ShoppingCartIcon />
+                      </StyledBadge>
+                    </IconButton>
+                  </Button>
+                  <Popover
+                    {...bindPopover(popupState)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'center',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'center',
+                    }}
+                  >
+                    <Box p={6}>
+                      <Typography>
+                        {
+                        props.cart.length ? 
+                        <>
+                        {renderCart()} 
+                        <Link to='carts'>
+                          <ButtonUi>Go to cart</ButtonUi>
+                        </Link>
+                        </>
+                        :
+                         'empty carts'
+                         }
+                        
+                      </Typography>
+                    </Box>
+                  </Popover>
+                </div>
+              )}
+            </PopupState>
+              <Link to='/profile' style={{textDecoration:'none', color:'white'}}>
+                <Button color="inherit" >HISTORY</Button>
+              </Link>
+            </>
             :
             null
           }
@@ -102,7 +166,9 @@ function ButtonAppBar(props) {
               <Link to= {props.role === 'admin' ? '/profileAdmin' : '/profile' } >
                 <MenuItem style={{textDecoration:'none', color:'black'}}>Profile</MenuItem>
               </Link>
-              <MenuItem >Setting</MenuItem>
+              <Link to= {props.role === 'admin' ? null : '/setting' } >
+                <MenuItem style={{textDecoration:'none', color:'black'}}>Setting</MenuItem>
+              </Link>
               <MenuItem onClick={onLogoutClick}>Logout</MenuItem>
               </Menu>
             </>

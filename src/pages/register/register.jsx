@@ -5,6 +5,7 @@ import { Link, Redirect } from 'react-router-dom';
 import Axios from 'axios'
 import { API_URL } from '../../helpers/idrformat';
 
+
 class Register extends Component {
     state = { 
         // username : createRef(),
@@ -14,9 +15,59 @@ class Register extends Component {
         password :'',
         repassword :'',
         error:'',
+        errorPass: '',
         isLoading: false,
         toHome: false
-     }
+    }
+
+    cekPass=(input)=>{
+        var password = input.split('')
+        var num = [1,2,3,4,5,6,7,8,9,0]
+        var lowerCase = ('abcdefghijklmnopqrstuvwxyz').split('')
+        var upperCase = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ').split('')
+        var strengthNum = 0
+        var strengthLow = 0
+        var strengthUp = 0
+        var trueLength = password.length
+    
+        for(var i=0; i<password.length; i++){
+            for(var j=0; j<num.length; j++){
+                if(password[i] == num[j]){
+                    strengthNum ++
+                }
+            }
+            for(var k=0;k<lowerCase.length; k++){
+                if(password[i] == lowerCase[k]){
+                    strengthLow ++
+                }
+            }
+            for(var m=0;m<upperCase.length; m++){
+                if(password[i] == upperCase[m]){
+                    strengthUp ++
+                }
+            }
+            if(password[i] == ' '){
+                trueLength --
+            }
+        }
+        // if(strengthNum>0 && strengthUp>0 && strengthLow>0){
+        //     return 'Pass berhasil'
+        // }
+        if(trueLength < 6){
+            this.setState({errorPass:'Character kurang dari 6'})
+            return false
+        }
+        if(strengthLow == 0 && strengthUp == 0){
+            this.setState({errorPass:'harus ada huruf'})
+            return false
+        }
+        if(strengthNum == 0){
+            this.setState({errorPass:'harus ada angka'})
+            return false
+        }
+    
+        return true
+    }
 
     onRegisterClick=()=>{
         const {username, password, repassword} = this.state
@@ -36,12 +87,16 @@ class Register extends Component {
                     if(password !== repassword){
                         alert('password tidak sama')
                     }else{
-                        Axios.post(`${API_URL}/users`, newUser)
-                        .then((res1)=>{
-                            alert('Sukses! berhasil register')
-                        }).catch((err)=>{
-                            console.log(err)
-                        })
+                        if(this.cekPass(password)){
+                            Axios.post(`${API_URL}/users`, newUser)
+                            .then((res1)=>{
+                                alert('Sukses! berhasil register')
+                            }).catch((err)=>{
+                                console.log(err)
+                            })
+                        }else{
+                            alert(this.state.errorPass)
+                        }
                     }
                 }else{
                     alert('username sudah ada, yg lain anjim')

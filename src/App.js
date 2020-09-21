@@ -7,6 +7,7 @@ import {
   Admin
 } from './pages'
 // import Home from './pages/home/home'
+import Setting from './pages/Login/SettingUser'
 import {Loading} from './component'
 import ManageAdmin from './pages/admin/admin'
 import {Switch, Route} from 'react-router-dom'
@@ -89,6 +90,7 @@ function App(props) {
         <Route exact path='/products' component={Listprod}/>
         <Route exact path='/profileAdmin' component={ProfileAdmin}/>
         <Route exact path='/profile' component={History}/>
+        <Route exact path='/setting' component={Setting}/>
         {/* gapake exact karna ada /:id */}
         <Route path='/products/:id' component={DetailProd}/> 
         <Route path='/carts' component={Cart}/>

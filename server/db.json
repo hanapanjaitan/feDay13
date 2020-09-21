@@ -17,6 +17,12 @@
       "password": "1234",
       "role": "user",
       "id": 3
+    },
+    {
+      "username": "madura",
+      "password": "123abc",
+      "role": "user",
+      "id": 4
     }
   ],
   "products": [
@@ -78,81 +84,92 @@
   "carts": [
     {
       "userId": 3,
-      "productId": 6,
-      "qty": 2,
+      "productId": 4,
+      "qty": 1,
       "id": 1
     },
     {
       "userId": 3,
-      "productId": 4,
+      "productId": 2,
       "qty": 2,
       "id": 2
-    },
-    {
-      "userId": 1,
-      "productId": 7,
-      "qty": 3,
-      "id": 3
-    },
-    {
-      "userId": 1,
-      "productId": 4,
-      "qty": 1,
-      "id": 4
     }
   ],
   "transactions": [
     {
       "status": "Completed",
       "userId": 1,
-      "tanggalPembayaran": "",
+      "tanggalPembayaran": "2020-09-21",
       "metode": "cc",
-      "buktiPembayaran": "121212121121",
-      "id": 2
-    },
-    {
-      "status": "WaitingAdmin",
-      "userId": 1,
-      "tanggalPembayaran": "",
-      "metode": "upload",
-      "buktiPembayaran": "https://ecs7.tokopedia.net/img/cache/700/product-1/2020/1/21/5677080/5677080_cf2ef623-8e05-4c90-80ec-0a6edb107d3e_648_648.jpg",
-      "id": 3
-    },
-    {
-      "status": "WaitingAdmin",
-      "userId": 1,
-      "tanggalPembayaran": "",
-      "metode": "upload",
-      "buktiPembayaran": "https://ecs7.tokopedia.net/img/cache/700/product-1/2020/1/21/5677080/5677080_cf2ef623-8e05-4c90-80ec-0a6edb107d3e_648_648.jpg",
-      "id": 4
+      "buktiPembayaran": "312234342424234",
+      "id": 1
     },
     {
       "status": "Completed",
-      "userId": 3,
-      "tanggalPembayaran": "",
+      "userId": 1,
+      "tanggalPembayaran": "2020-09-21",
+      "metode": "upload",
+      "buktiPembayaran": "https://media.karousell.com/media/photos/products/2017/11/27/bukti_transfer_1511770644_d1d5a6a2.jpg",
+      "id": 2
+    },
+    {
+      "status": "Completed",
+      "userId": 1,
+      "tanggalPembayaran": "2020-09-21",
       "metode": "cc",
-      "buktiPembayaran": "121213131431441",
+      "buktiPembayaran": "1212",
+      "id": 3
+    },
+    {
+      "status": "Completed",
+      "userId": 1,
+      "tanggalPembayaran": "2020-09-21",
+      "metode": "cc",
+      "buktiPembayaran": "4003600000000014",
+      "id": 4
+    },
+    {
+      "status": "WaitingAdmin",
+      "userId": 3,
+      "tanggalPembayaran": "2020-09-21",
+      "metode": "upload",
+      "buktiPembayaran": "https://gotra.sgp1.cdn.digitaloceanspaces.com/web-upload/1540447745_25-10-2018_14.jpg",
       "id": 5
     }
   ],
   "transactionDetails": [
     {
-      "transactionId": 2,
+      "transactionId": 1,
       "productId": 2,
+      "namatrip": "Japan",
+      "gambar": "https://images4.alphacoders.com/289/thumb-1920-289526.jpg",
       "price": 500000,
+      "qty": 2,
+      "id": 1
+    },
+    {
+      "transactionId": 1,
+      "productId": 4,
+      "namatrip": "London",
+      "gambar": "https://images8.alphacoders.com/835/thumb-1920-835050.jpg",
+      "price": 800000,
       "qty": 1,
       "id": 2
     },
     {
       "transactionId": 2,
-      "productId": 4,
-      "price": 800000,
-      "qty": 3,
+      "productId": 7,
+      "namatrip": "China",
+      "gambar": "https://images7.alphacoders.com/898/thumb-1920-898714.jpg",
+      "price": 600000,
+      "qty": 1,
       "id": 3
     },
     {
       "transactionId": 2,
       "productId": 5,
+      "namatrip": "Paris",
+      "gambar": "https://images6.alphacoders.com/703/thumb-1920-703494.jpg",
       "price": 760000,
       "qty": 2,
       "id": 4
@@ -160,58 +177,38 @@
     {
       "transactionId": 3,
       "productId": 4,
+      "namatrip": "London",
+      "gambar": "https://images8.alphacoders.com/835/thumb-1920-835050.jpg",
       "price": 800000,
       "qty": 1,
       "id": 5
     },
     {
       "transactionId": 4,
-      "productId": 2,
-      "price": 500000,
+      "productId": 6,
+      "namatrip": "Maldives",
+      "gambar": "https://images2.alphacoders.com/517/thumb-1920-517458.jpg",
+      "price": 1000000,
       "qty": 2,
       "id": 6
     },
     {
-      "transactionId": 4,
-      "productId": 4,
-      "price": 800000,
-      "qty": 5,
+      "transactionId": 5,
+      "productId": 6,
+      "namatrip": "Maldives",
+      "gambar": "https://images2.alphacoders.com/517/thumb-1920-517458.jpg",
+      "price": 1000000,
+      "qty": 2,
       "id": 7
     },
     {
       "transactionId": 5,
-      "productId": 2,
-      "price": 500000,
-      "qty": 4,
-      "id": 8
-    },
-    {
-      "transactionId": 5,
-      "productId": 5,
-      "price": 760000,
-      "qty": 7,
-      "id": 9
-    },
-    {
-      "transactionId": 5,
-      "productId": 6,
-      "price": 1000000,
-      "qty": 6,
-      "id": 10
-    },
-    {
-      "transactionId": 5,
       "productId": 4,
+      "namatrip": "London",
+      "gambar": "https://images8.alphacoders.com/835/thumb-1920-835050.jpg",
       "price": 800000,
-      "qty": 6,
-      "id": 11
-    },
-    {
-      "transactionId": 5,
-      "productId": 7,
-      "price": 600000,
-      "qty": 6,
-      "id": 12
+      "qty": 2,
+      "id": 8
     }
   ]
 }

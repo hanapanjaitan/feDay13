@@ -89,7 +89,17 @@ class Cart extends Component {
             })
           }
         })
-      }
+    }
+
+    dateformat=()=>{
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear();
+    
+        today = yyyy + '-' + mm + '-' + dd;
+        return today
+    }
 
     renderTotalHarga=()=>{
         var total= this.state.cart.reduce((total, num)=>{
@@ -130,18 +140,54 @@ class Cart extends Component {
         if(pilihan === '1'){ // via transfer
             this.onBayarPakeBukti()
         }else if (pilihan === '2'){
-            this.onBayarPakeCC()
+            if (this.cekCreditCard(this.state.cc.current.value)){
+                alert('credit card valid')
+                this.onBayarPakeCC()
+            }else{
+                alert('Maaf Credit Card anda tidak valid')
+            }
             
         }else{
             alert ('Pilih dulu metode pemabayaran')
         }
     }
 
+    cekCreditCard=(input)=>{
+        var angka = 0
+        var output = 0
+        var y = input
+        var a
+        do {
+            a = y % (10)
+            var b
+            y = (y - a)/10
+            if(angka % 2 == 1){
+                a *= 2
+                if(a > 9){
+                    b = a%10
+                    output += (b+1)
+                }else{
+                    output += a
+                }
+
+            }else{
+                output += a
+            }
+            angka ++
+        } while (y>0);
+        if(output % 10 == 0){
+            return true
+        }else{
+            return false
+        }
+    }
+
     onBayarPakeCC=()=>{
+        
         Axios.post(`${API_URL}/transactions`,{
             status: 'Completed',
             userId: this.props.id,
-            tanggalPembayaran: '',
+            tanggalPembayaran: this.dateformat(),
             metode: 'cc',
             buktiPembayaran: this.state.cc.current.value
         }).then((res)=>{
@@ -150,6 +196,8 @@ class Cart extends Component {
                 arr.push(Axios.post(`${API_URL}/transactionDetails`, {
                     transactionId: res.data.id,
                     productId: val.product.id,
+                    namatrip: val.product.namatrip,
+                    gambar: val.product.gambar,
                     price: parseInt(val.product.harga),
                     qty: val.qty
                 }))
@@ -190,7 +238,7 @@ class Cart extends Component {
         Axios.post(`${API_URL}/transactions`,{
             status: 'WaitingAdmin',
             userId: this.props.id,
-            tanggalPembayaran: '',
+            tanggalPembayaran: this.dateformat(),
             metode: 'upload',
             buktiPembayaran: this.state.bukti.current.value
         }).then((res)=>{
@@ -199,6 +247,8 @@ class Cart extends Component {
                 arr.push(Axios.post(`${API_URL}/transactionDetails`, {
                     transactionId: res.data.id,
                     productId: val.product.id,
+                    namatrip: val.product.namatrip,
+                    gambar: val.product.gambar,
                     price: parseInt(val.product.harga),
                     qty: val.qty
                 }))
@@ -251,9 +301,11 @@ class Cart extends Component {
                 this.setState({cart:res1.data})
                 this.setState({indexEdit: index})
                 this.setState({isEditQty: false})
-                window.location.reload()
             }).catch((err)=>{
-              console.log(err)
+                console.log(err)
+            }).finally(()=>{
+                window.location.reload()
+
             })
           }).catch((err)=>{
             console.log(err)

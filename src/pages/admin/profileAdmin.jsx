@@ -16,17 +16,20 @@ import ButtonUi from './../../component/button'
 import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap'
 import {AddHistoryAction} from './../../redux/Actions'
 import {MdDeleteForever} from 'react-icons/md'
-import {BiEditAlt} from 'react-icons/bi'
+import {BiArrowBack, BiEditAlt} from 'react-icons/bi'
 
 class ProfileAdmin extends Component {
     state = { 
-        historyUser : []
+        historyUser : [],
+        indexDetails: 0
     }
 
     componentDidMount(){
+        console.log(this.props.id)
+        // http://localhost:4000/transactions?status=WaitingAdmin&_embed=transactionDetails
         Axios.get(`${API_URL}/transactions`,{
             params:{
-                userId: this.props.id,
+                status: "WaitingAdmin",
                 _embed:'transactionDetails'
             }
         })
@@ -37,6 +40,66 @@ class ProfileAdmin extends Component {
             this.setState({historyUser:res.data})
         }).catch((err)=>{
             console.log(err)
+        })
+    }
+
+    onAcceptClick=(index)=>{
+        Axios.get(`${API_URL}/transactions`)
+        .then((res)=>{
+            var indexProd = res.data.findIndex((val)=>{
+                return val.status == 'WaitingAdmin' && val.id == this.state.historyUser[index].id
+            })
+            Axios.patch(`${API_URL}/transactions/${indexProd+1}`,{
+                status: "Completed"
+            }).then((res2)=>{
+                Axios.get(`${API_URL}/transactions`,{
+                    params:{
+                        status: "WaitingAdmin",
+                        _embed:'transactionDetails'
+                    }
+                })
+                .then((res3)=>{
+                    console.log(res.data.length)
+                    // console.log(res.data[0].userId)
+                    console.log(res.data)
+                    alert('berhasil accept bukti transfer')
+                    this.setState({historyUser:res3.data})
+                }).catch((err)=>{
+                    console.log(err)
+                })
+            }).catch((err)=>{
+                console.log(err)
+            })
+        }).catch((err)=>{
+
+        })
+    }
+
+    renderTotalHarga=(index)=>{
+        var total= this.state.historyUser[index].transactionDetails.reduce((total, num)=>{
+            return total + (num.price * num.qty)
+        },0)
+
+        return total
+    }
+
+    renderCekBuktiTransfer=()=>{
+        return this.state.historyUser.map((val, index)=>{
+            return (
+                <TableRow key={val.id}>
+                    <TableCell>{index+1}</TableCell>
+                    <TableCell>
+                        <div style={{maxWidth:'200px'}}>
+                            <img width='100%' heigth='100%' src={val.buktiPembayaran} alt={val.id}/>
+                        </div>
+                    </TableCell>
+                    <TableCell>{priceFormatter(this.renderTotalHarga(index))}</TableCell>
+                    <TableCell>{val.status}</TableCell>
+                    <TableCell>
+                        <ButtonUi onClick={()=>this.onAcceptClick(index)}>Accept</ButtonUi>
+                    </TableCell>
+                </TableRow>
+            )
         })
     }
     
@@ -53,15 +116,15 @@ class ProfileAdmin extends Component {
                             <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>ID. Pembelian</TableCell>
-                                        <TableCell>Total Harga</TableCell>
+                                        <TableCell>No.</TableCell>
                                         <TableCell>Bukti Transfer</TableCell>
+                                        <TableCell>Total Harga</TableCell>
                                         <TableCell>Status</TableCell>
                                         <TableCell>Action</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-
+                                    {this.renderCekBuktiTransfer()}
                                 </TableBody>
                             </Table>
                         </TableContainer>
