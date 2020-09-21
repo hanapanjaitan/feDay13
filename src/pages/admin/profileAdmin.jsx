@@ -18,18 +18,12 @@ import {AddHistoryAction} from './../../redux/Actions'
 import {MdDeleteForever} from 'react-icons/md'
 import {BiEditAlt} from 'react-icons/bi'
 
-class History extends Component {
+class ProfileAdmin extends Component {
     state = { 
-        history: [],
+        historyUser : []
     }
 
     componentDidMount(){
-        // http://localhost:4000/transactions/2/transactionDetails
-        // http://localhost:4000/transactionDetails?transactionId=2&_expand=transaction
-        // Axios.get(`${API_URL}/transactions?userId=${this.props.id}&_expand=transactionDetail`)
-
-        // http://localhost:4000/transactions?userId=1&_embed=transactionDetails
-        // Axios.get(`${API_URL}/transactions?userId=${this.props.id}&_embed=transactionDetails`)
         Axios.get(`${API_URL}/transactions`,{
             params:{
                 userId: this.props.id,
@@ -40,40 +34,18 @@ class History extends Component {
             console.log(res.data.length)
             // console.log(res.data[0].userId)
             console.log(res.data)
-            this.setState({history:res.data})
+            this.setState({historyUser:res.data})
         }).catch((err)=>{
             console.log(err)
         })
     }
-
-    renderTotalHarga=(arr)=>{
-        var total= arr.reduce((total, num)=>{
-            return total + num.price
-        },0)
-
-        return total
-    }
-
-    renderHistory=()=>{
-        console.log('masuk render')
-        return this.state.history.map((val)=>{
-            return (
-                <TableRow key={val.id}>
-                    <TableCell>{val.id}</TableCell>
-                    <TableCell>{priceFormatter(this.renderTotalHarga(val.transactionDetails))}</TableCell>
-                    <TableCell>{val.metode}</TableCell>
-                    <TableCell>{val.status}</TableCell>
-                </TableRow>
-            )
-        })
-    }
-
+    
     render() { 
         return ( 
             <div>
                 <Header/>
                 <div className='d-flex justify-content-center align-items-center mt-3'>
-                    <h1>History pembelanjaan { this.props.username}</h1>
+                    <h1>Checking bukti transfer</h1>
                 </div>
                 <div className='pt-3' style={{paddingLeft:'5%', paddingRight:'5%'}}>
                     <Paper >
@@ -83,12 +55,13 @@ class History extends Component {
                                     <TableRow>
                                         <TableCell>ID. Pembelian</TableCell>
                                         <TableCell>Total Harga</TableCell>
-                                        <TableCell>Metode Pembayaran</TableCell>
+                                        <TableCell>Bukti Transfer</TableCell>
                                         <TableCell>Status</TableCell>
+                                        <TableCell>Action</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {this.renderHistory()}
+
                                 </TableBody>
                             </Table>
                         </TableContainer>
@@ -105,4 +78,4 @@ const MapstatetoProps=({Auth})=>{
     }
 }
  
-export default connect(MapstatetoProps) (History);
+export default connect(MapstatetoProps) (ProfileAdmin);

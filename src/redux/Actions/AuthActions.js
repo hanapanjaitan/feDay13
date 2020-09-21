@@ -2,12 +2,11 @@ import Axios from 'axios'
 import { API_URL } from '../../helpers/idrformat'
 import {ADDCART, ADDHISTORY} from './../Type'
 
-export const LoginFunc=(obj, cart, history)=>{
+export const LoginFunc=(obj, cart)=>{
     return {
         type: 'LOGIN',
         payload: obj,
-        cart: cart,
-        history: history
+        cart: cart
     }
 }
 

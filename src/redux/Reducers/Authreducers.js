@@ -7,8 +7,7 @@ const INITIAL_STATE={
     isLogin: false,
     error:'',
     isLoading:false,
-    cart: [],
-    history: []
+    cart: []
 }
 
 export default (state=INITIAL_STATE, action)=>{
@@ -18,7 +17,7 @@ export default (state=INITIAL_STATE, action)=>{
         case 'LOGOUT':
             return INITIAL_STATE
         case 'Error':
-            return {...state, error:'error message dari redux', isLoading:false}
+            return {...state, error:action.payload, isLoading:false}
         case 'LOADING':
             return {...state, isLoading: true}
         case 'CLEAR':

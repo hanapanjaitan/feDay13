@@ -13,18 +13,25 @@ import TableRow from '@material-ui/core/TableRow';
 import {TableFooter} from '@material-ui/core'
 import NotFound from './../notfound';
 import ButtonUi from './../../component/button'
-import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap'
+import {Modal, ModalHeader, ModalBody, ModalFooter, Button} from 'reactstrap'
 import {AddCartAction} from './../../redux/Actions'
 import {MdDeleteForever} from 'react-icons/md'
 import {BiEditAlt} from 'react-icons/bi'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 class Cart extends Component {
     state = { 
         cart:[],
         isOpen: false,
+        isEditQty: false,
         pilihan: 0,
+        indexEdit: 0,
         bukti: createRef(),
-        cc: createRef()
+        cc: createRef(),
+        qtyEdit: createRef()
      }
 
     componentDidMount(){
@@ -44,6 +51,45 @@ class Cart extends Component {
             console.log(err)
         })
     }
+
+    onDeleteClick=(index, id)=>{
+        // const {nama} =this.state.datamurid[index]
+        MySwal.fire({
+          title: `Are you sure want to delete ${this.state.cart[index].product.namatrip} ?`,
+          text: "You won't be able to revert this!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+          if (result.value) {
+            // console.log(id)
+            Axios.delete(`${API_URL}/carts/${id}`)
+            .then(()=>{
+                Axios.get(`${API_URL}/carts`,{
+                    params:{
+                        userId: this.props.id,
+                        _expand:'product'
+                    }
+                })
+                .then((res)=>{
+                    MySwal.fire(
+                      'Deleted!',
+                      'Your file has been deleted.',
+                      'success'
+                    )
+                    this.setState({cart:res.data})
+                    // alert('Berhasil masukkan ke cart')
+                }).catch((err)=>{
+                    console.log(err)
+                })
+            }).catch((err)=>{
+              console.log(err)
+            })
+          }
+        })
+      }
 
     renderTotalHarga=()=>{
         var total= this.state.cart.reduce((total, num)=>{
@@ -68,8 +114,8 @@ class Cart extends Component {
                     <TableCell>{priceFormatter(val.product.harga)}</TableCell>
                     <TableCell>{priceFormatter(val.product.harga * val.qty)}</TableCell>
                     <TableCell>
-                        <span style={{fontSize:30}} className='text-danger mr-3'><MdDeleteForever/></span>
-                        <span style={{fontSize:30}} className='text-primary ml-3'><BiEditAlt/></span>
+                        <span style={{fontSize:30}} onClick={()=>this.onDeleteClick(index, val.id)} className='text-danger mr-3'><MdDeleteForever/></span>
+                        <span style={{fontSize:30}} onClick={()=>this.onEditClick(index)} className='text-primary ml-3'><BiEditAlt/></span>
                     </TableCell>
                 </TableRow>
             )
@@ -189,6 +235,31 @@ class Cart extends Component {
         })
     }
 
+    onEditClick=(index)=>{
+        this.setState({indexEdit: index})
+        this.setState({isEditQty: true})
+    }
+
+    onSaveEditClick=(index, id)=>{
+        var qtyNew = this.state.qtyEdit.current.value
+          Axios.patch(`${API_URL}/carts/${id}`, {
+              qty: parseInt(qtyNew)
+          })
+          .then((res)=>{
+            Axios.get(`${API_URL}/carts`)
+            .then((res1)=>{
+                this.setState({cart:res1.data})
+                this.setState({indexEdit: index})
+                this.setState({isEditQty: false})
+                window.location.reload()
+            }).catch((err)=>{
+              console.log(err)
+            })
+          }).catch((err)=>{
+            console.log(err)
+          })
+    }
+
     onCheckOutClick=()=>{
         this.setState({isOpen: true})
         // Axios.post(`${API_URL}/transactions`,{
@@ -268,6 +339,21 @@ class Cart extends Component {
                             </ButtonUi>
                         </ModalFooter>
                     </Modal>
+                    {
+                    this.state.cart.length ?
+                    <Modal isOpen={this.state.isEditQty} toggle={()=>this.setState({isEditQty: false})}>
+                        <ModalHeader toggle={()=>this.setState({isEditQty: false})}>Edit quantity {this.state.cart[this.state.indexEdit].product.namatrip}</ModalHeader>
+                            <ModalBody>
+                                <input type='text' defaultValue={this.state.cart[this.state.indexEdit].qty} ref={this.state.qtyEdit} placeholder='Masukkan qty' className='form-control mb-2'/>
+                                
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color="primary" onClick={()=>this.onSaveEditClick(this.state.indexEdit, this.state.cart[this.state.indexEdit].id)} >Save</Button>{' '}
+                                <Button color="secondary" onClick={()=>this.setState({isEditQty: false})}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
+                    : null
+                    }
                     <Header/>
                     <div className='pt-3' style={{paddingLeft:'5%', paddingRight:'5%'}}>
                         <Paper >

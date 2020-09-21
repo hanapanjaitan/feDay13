@@ -99,7 +99,7 @@ function ButtonAppBar(props) {
               open={Boolean(anchorEl)}
               onClose={()=>setOpen(null)}
               >
-              <Link to='/profile'>
+              <Link to= {props.role === 'admin' ? '/profileAdmin' : '/profile' } >
                 <MenuItem style={{textDecoration:'none', color:'black'}}>Profile</MenuItem>
               </Link>
               <MenuItem >Setting</MenuItem>

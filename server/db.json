@@ -75,7 +75,32 @@
       "id": 7
     }
   ],
-  "carts": [],
+  "carts": [
+    {
+      "userId": 3,
+      "productId": 6,
+      "qty": 2,
+      "id": 1
+    },
+    {
+      "userId": 3,
+      "productId": 4,
+      "qty": 2,
+      "id": 2
+    },
+    {
+      "userId": 1,
+      "productId": 7,
+      "qty": 3,
+      "id": 3
+    },
+    {
+      "userId": 1,
+      "productId": 4,
+      "qty": 1,
+      "id": 4
+    }
+  ],
   "transactions": [
     {
       "status": "Completed",

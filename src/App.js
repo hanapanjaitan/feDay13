@@ -11,6 +11,7 @@ import {Loading} from './component'
 import ManageAdmin from './pages/admin/admin'
 import {Switch, Route} from 'react-router-dom'
 import Login from './pages/Login/Login'
+import ProfileAdmin from './pages/admin/profileAdmin'
 import {connect} from 'react-redux'
 import {LoginFunc} from './redux/Actions'
 import Axios from 'axios'
@@ -86,6 +87,7 @@ function App(props) {
         <Route exact path='/login' component={Login}/>
         <Route exact path='/register' component={Register}/>
         <Route exact path='/products' component={Listprod}/>
+        <Route exact path='/profileAdmin' component={ProfileAdmin}/>
         <Route exact path='/profile' component={History}/>
         {/* gapake exact karna ada /:id */}
         <Route path='/products/:id' component={DetailProd}/> 
