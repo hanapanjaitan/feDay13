@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Header from '../../component/Header';
 import { connect } from 'react-redux';
 import Axios from 'axios'
-import { API_URL, priceFormatter } from '../../helpers/idrformat';
+import { API_URL, API_URL_SQL, priceFormatter } from '../../helpers/idrformat';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -27,12 +27,7 @@ class ProfileAdmin extends Component {
     componentDidMount(){
         console.log(this.props.id)
         // http://localhost:4000/transactions?status=WaitingAdmin&_embed=transactionDetails
-        Axios.get(`${API_URL}/transactions`,{
-            params:{
-                status: "WaitingAdmin",
-                _embed:'transactionDetails'
-            }
-        })
+        Axios.get(`${API_URL_SQL}/trans/getWaitingApprove`)
         .then((res)=>{
             console.log(res.data.length)
             // console.log(res.data[0].userId)

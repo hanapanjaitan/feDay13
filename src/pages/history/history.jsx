@@ -120,7 +120,7 @@ class History extends Component {
             <div>
                 {
                     this.state.history.length ?
-                    <Modal isOpen={this.state.isOpen} toggle={()=>this.setState({isOpen: false})}>
+                    <Modal size='lg' isOpen={this.state.isOpen} toggle={()=>this.setState({isOpen: false})}>
                         <ModalHeader isOpen={this.state.isOpen} toggle={()=>this.setState({isOpen: false})}>Details</ModalHeader>
                         <ModalBody isOpen={this.state.isOpen} toggle={()=>this.setState({isOpen: false})}>
                             <Paper >

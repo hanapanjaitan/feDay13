@@ -2,7 +2,7 @@ import React, { Component, createRef } from 'react';
 import { connect } from 'react-redux';
 import Header from '../../component/Header';
 import Axios from 'axios'
-import { API_URL, priceFormatter } from '../../helpers/idrformat';
+import { API_URL, API_URL_SQL, priceFormatter } from '../../helpers/idrformat';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -13,7 +13,7 @@ import TableRow from '@material-ui/core/TableRow';
 import {TableFooter} from '@material-ui/core'
 import NotFound from './../notfound';
 import ButtonUi from './../../component/button'
-import {Modal, ModalHeader, ModalBody, ModalFooter, Button} from 'reactstrap'
+import {Modal, ModalHeader, ModalBody, ModalFooter, Button, CustomInput} from 'reactstrap'
 import {AddCartAction} from './../../redux/Actions'
 import {MdDeleteForever} from 'react-icons/md'
 import {BiEditAlt} from 'react-icons/bi'
@@ -31,21 +31,22 @@ class Cart extends Component {
         indexEdit: 0,
         bukti: createRef(),
         cc: createRef(),
-        qtyEdit: createRef()
+        qtyEdit: createRef(),
+        idtrans: 0,
+        buktitrans: null
      }
 
     componentDidMount(){
         // Axios.get(`${API_URL}/carts?userId=${this.props.id}&_expand=product`)
-        Axios.get(`${API_URL}/carts`,{
+        Axios.get(`${API_URL_SQL}/trans/getCart`,{
             params:{
-                userId: this.props.id,
-                _expand:'product'
+                userid: this.props.id
             }
         })
         .then((res)=>{
             console.log(this.props.cart)
             console.log(res.data)
-            this.setState({cart:res.data})
+            this.setState({cart:res.data, idtrans: res.data[0].idtrans})
             // alert('Berhasil masukkan ke cart')
         }).catch((err)=>{
             console.log(err)
@@ -103,7 +104,7 @@ class Cart extends Component {
 
     renderTotalHarga=()=>{
         var total= this.state.cart.reduce((total, num)=>{
-            return total + (num.product.harga * num.qty)
+            return total + (num.harga * num.qty)
         },0)
 
         return total
@@ -114,15 +115,15 @@ class Cart extends Component {
             return (
                 <TableRow key={val.id}>
                     <TableCell>{index+1}</TableCell>
-                    <TableCell>{val.product.namatrip}</TableCell>
+                    <TableCell>{val.namaproduct}</TableCell>
                     <TableCell>
                         <div style={{maxWidth:'200px'}}>
-                            <img width='100%' heigth='100%' src={val.product.gambar} alt={val.product.namatrip}/>
+                            <img width='100%' heigth='100%' src={API_URL_SQL + val.banner} alt={val.namaproduct}/>
                         </div>
                     </TableCell>
                     <TableCell>{val.qty}</TableCell>
-                    <TableCell>{priceFormatter(val.product.harga)}</TableCell>
-                    <TableCell>{priceFormatter(val.product.harga * val.qty)}</TableCell>
+                    <TableCell>{priceFormatter(val.harga)}</TableCell>
+                    <TableCell>{priceFormatter(val.harga * val.qty)}</TableCell>
                     <TableCell>
                         <span style={{fontSize:30}} onClick={()=>this.onDeleteClick(index, val.id)} className='text-danger mr-3'><MdDeleteForever/></span>
                         <span style={{fontSize:30}} onClick={()=>this.onEditClick(index)} className='text-primary ml-3'><BiEditAlt/></span>
@@ -148,7 +149,7 @@ class Cart extends Component {
             }
             
         }else{
-            alert ('Pilih dulu metode pemabayaran')
+            alert ('Pilih dulu metode pembayaran')
         }
     }
 
@@ -183,106 +184,151 @@ class Cart extends Component {
     }
 
     onBayarPakeCC=()=>{
-        
-        Axios.post(`${API_URL}/transactions`,{
-            status: 'Completed',
-            userId: this.props.id,
-            tanggalPembayaran: this.dateformat(),
-            metode: 'cc',
-            buktiPembayaran: this.state.cc.current.value
+        Axios.post(`${API_URL_SQL}/trans/bayarcc`,{
+            idtrans: this.state.idtrans,
+            nomercc: this.state.cc.current.value,
+            datacart: this.state.cart
+        }, {
+            headers: {
+                'Authorization' : `Bearer ${this.props.token}`
+            }
         }).then((res)=>{
-            var arr = []
-            this.state.cart.forEach((val)=>{
-                arr.push(Axios.post(`${API_URL}/transactionDetails`, {
-                    transactionId: res.data.id,
-                    productId: val.product.id,
-                    namatrip: val.product.namatrip,
-                    gambar: val.product.gambar,
-                    price: parseInt(val.product.harga),
-                    qty: val.qty
-                }))
-            })
-            Axios.all(arr).then((res1)=>{
-                var deleteArr = []
-                this.state.cart.forEach((val)=>{
-                    deleteArr.push(Axios.delete(`${API_URL}/carts/${val.id}`))
-                })
-                Axios.all(deleteArr)
-                .then(()=>{
-                    Axios.get(`${API_URL}/carts`,{
-                        params:{
-                            userId: this.props.id,
-                            _expand:'product'
-                        }
-                    })
-                    .then((res3)=>{
-                        console.log(res3.data)
-                        this.props.AddCartAction([])
-                        this.setState({cart:res3.data, isOpen:false})
-                        
-                    }).catch((err)=>{
-                        console.log(err)
-                    })
-                }).catch((Err)=>{
-                    console.log(Err)
-                })
-            }).catch((err)=>{
-                console.log(err)
-            })
+            if (res.data === 'berhasil'){
+                this.props.AddCartAction([])
+                this.setState({cart:[], isOpen: false})
+            }
         }).catch((err)=>{
             console.log(err)
         })
+        // Axios.post(`${API_URL}/transactions`,{
+        //     status: 'Completed',
+        //     userId: this.props.id,
+        //     tanggalPembayaran: this.dateformat(),
+        //     metode: 'cc',
+        //     buktiPembayaran: this.state.cc.current.value
+        // }).then((res)=>{
+        //     var arr = []
+        //     this.state.cart.forEach((val)=>{
+        //         arr.push(Axios.post(`${API_URL}/transactionDetails`, {
+        //             transactionId: res.data.id,
+        //             productId: val.product.id,
+        //             namatrip: val.product.namatrip,
+        //             gambar: val.product.gambar,
+        //             price: parseInt(val.product.harga),
+        //             qty: val.qty
+        //         }))
+        //     })
+        //     Axios.all(arr).then((res1)=>{
+        //         var deleteArr = []
+        //         this.state.cart.forEach((val)=>{
+        //             deleteArr.push(Axios.delete(`${API_URL}/carts/${val.id}`))
+        //         })
+        //         Axios.all(deleteArr)
+        //         .then(()=>{
+        //             Axios.get(`${API_URL}/carts`,{
+        //                 params:{
+        //                     userId: this.props.id,
+        //                     _expand:'product'
+        //                 }
+        //             })
+        //             .then((res3)=>{
+        //                 console.log(res3.data)
+        //                 this.props.AddCartAction([])
+        //                 this.setState({cart:res3.data, isOpen:false})
+                        
+        //             }).catch((err)=>{
+        //                 console.log(err)
+        //             })
+        //         }).catch((Err)=>{
+        //             console.log(Err)
+        //         })
+        //     }).catch((err)=>{
+        //         console.log(err)
+        //     })
+        // }).catch((err)=>{
+        //     console.log(err)
+        // })
     }
 
     onBayarPakeBukti=()=>{
-        Axios.post(`${API_URL}/transactions`,{
-            status: 'WaitingAdmin',
-            userId: this.props.id,
-            tanggalPembayaran: this.dateformat(),
-            metode: 'upload',
-            buktiPembayaran: this.state.bukti.current.value
-        }).then((res)=>{
-            var arr = []
-            this.state.cart.forEach((val)=>{
-                arr.push(Axios.post(`${API_URL}/transactionDetails`, {
-                    transactionId: res.data.id,
-                    productId: val.product.id,
-                    namatrip: val.product.namatrip,
-                    gambar: val.product.gambar,
-                    price: parseInt(val.product.harga),
-                    qty: val.qty
-                }))
-            })
-            Axios.all(arr).then((res1)=>{
-                var deleteArr = []
-                this.state.cart.forEach((val)=>{
-                    deleteArr.push(Axios.delete(`${API_URL}/carts/${val.id}`))
-                })
-                Axios.all(deleteArr)
-                .then(()=>{
-                    Axios.get(`${API_URL}/carts`,{
-                        params:{
-                            userId: this.props.id,
-                            _expand:'product'
-                        }
-                    })
-                    .then((res3)=>{
-                        console.log(res3.data)
-                        this.props.AddCartAction([])
-                        this.setState({cart:res3.data, isOpen:false})
-                        
-                    }).catch((err)=>{
-                        console.log(err)
-                    })
-                }).catch((Err)=>{
-                    console.log(Err)
-                })
-            }).catch((err)=>{
-                console.log(err)
-            })
+        var formData = new FormData()
+        var options = {
+            headers: {
+                'Content-type': 'multipart/form-data',
+                'Authorization' : `Bearer ${this.props.token}`
+            },
+            params: {
+                userid: this.props.id
+            }
+        }
+        formData.append('bukti', this.state.buktitrans)
+        formData.append('data', JSON.stringify({idtrans: this.state.idtrans}))
+        Axios.post(`${API_URL_SQL}/trans/bayarbukti`, formData, options)
+        .then((res)=>{
+            if (res.data === 'berhasil'){
+                this.props.AddCartAction([])
+                this.setState({cart:[], isOpen: false})
+            }
         }).catch((err)=>{
             console.log(err)
         })
+        // Axios.post(`${API_URL}/transactions`,{
+        //     status: 'WaitingAdmin',
+        //     userId: this.props.id,
+        //     tanggalPembayaran: this.dateformat(),
+        //     metode: 'upload',
+        //     buktiPembayaran: this.state.bukti.current.value
+        // }).then((res)=>{
+        //     var arr = []
+        //     this.state.cart.forEach((val)=>{
+        //         arr.push(Axios.post(`${API_URL}/transactionDetails`, {
+        //             transactionId: res.data.id,
+        //             productId: val.product.id,
+        //             namatrip: val.product.namatrip,
+        //             gambar: val.product.gambar,
+        //             price: parseInt(val.product.harga),
+        //             qty: val.qty
+        //         }))
+        //     })
+        //     Axios.all(arr).then((res1)=>{
+        //         var deleteArr = []
+        //         this.state.cart.forEach((val)=>{
+        //             deleteArr.push(Axios.delete(`${API_URL}/carts/${val.id}`))
+        //         })
+        //         Axios.all(deleteArr)
+        //         .then(()=>{
+        //             Axios.get(`${API_URL}/carts`,{
+        //                 params:{
+        //                     userId: this.props.id,
+        //                     _expand:'product'
+        //                 }
+        //             })
+        //             .then((res3)=>{
+        //                 console.log(res3.data)
+        //                 this.props.AddCartAction([])
+        //                 this.setState({cart:res3.data, isOpen:false})
+                        
+        //             }).catch((err)=>{
+        //                 console.log(err)
+        //             })
+        //         }).catch((Err)=>{
+        //             console.log(Err)
+        //         })
+        //     }).catch((err)=>{
+        //         console.log(err)
+        //     })
+        // }).catch((err)=>{
+        //     console.log(err)
+        // })
+    }
+
+    oninputfilechange=(e)=>{
+        if(e.target.files[0]){
+            this.setState({buktitrans:e.target.files[0]})
+        }else{
+            // console.log('hapus')
+            this.setState({buktitrans:null})
+        }
     }
 
     onEditClick=(index)=>{
@@ -376,8 +422,8 @@ class Cart extends Component {
                                 this.state.pilihan==2 ?
                                 <input className='form-control' ref={this.state.cc} placeholder='masukkan cc'/>
                                 :
-                                this.state.pilihan == 1?
-                                <input className='form-control' ref={this.state.bukti} placeholder='input bukti pembayaran'/>
+                                this.state.pilihan==1?
+                                <CustomInput className='form-control' onChange={this.oninputfilechange} type='file'   label={this.state.buktitrans?this.state.buktitrans.name:'Select bukti'}/>
                                 :
                                 null
                             }
@@ -394,7 +440,7 @@ class Cart extends Component {
                     {
                     this.state.cart.length ?
                     <Modal isOpen={this.state.isEditQty} toggle={()=>this.setState({isEditQty: false})}>
-                        <ModalHeader toggle={()=>this.setState({isEditQty: false})}>Edit quantity {this.state.cart[this.state.indexEdit].product.namatrip}</ModalHeader>
+                        <ModalHeader toggle={()=>this.setState({isEditQty: false})}>Edit quantity {this.state.cart[this.state.indexEdit].namaproduct}</ModalHeader>
                             <ModalBody>
                                 <input type='text' defaultValue={this.state.cart[this.state.indexEdit].qty} ref={this.state.qtyEdit} placeholder='Masukkan qty' className='form-control mb-2'/>
                                 

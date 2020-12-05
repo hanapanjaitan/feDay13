@@ -9,15 +9,17 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import {MdDeleteForever} from 'react-icons/md'
-import {BiEditAlt} from 'react-icons/bi'
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import {BiEditAlt, BiPlusCircle} from 'react-icons/bi'
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, CustomInput } from 'reactstrap';
 import axios from 'axios'
-import { API_URL, priceFormatter } from '../../helpers/idrformat';
+import { API_URL, API_URL_SQL, priceFormatter } from '../../helpers/idrformat';
 import ButtonUI from './../../component/button'
 import {connect} from 'react-redux'
 import Notfound from './../notfound'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { useForkRef } from '@material-ui/core';
+import Axios from 'axios';
 
 const ipsum = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugiat molestias eos repellendus dolore suscipit, harum ea sit cumque. Aperiam labore exercitationem hic numquam inventore deserunt at vero rerum a corporis.'
 
@@ -36,23 +38,28 @@ const useStyles = makeStyles({
 function StickyHeadTable(props) {
   const [modal, setModal] = useState(false);
   const [modalEdit, setModalEdit] = useState(false);
+  const [modalFoto, setModalFoto] = useState(false)
+  const [fotos, setfotos] = useState([null])
   const classes = useStyles();
-  const [addform, setaddform] = useState({
+  const [banner, setBanner] = useState(null)
+  const [idProdSelect, setIdProdSelect] = useState(0)
+
+  const [editform, seteditform] = useState({
     namaTrip: useRef(),
-    gambar: useRef(),
+    gambar: null,
     tanggalStart: useRef(),
     tanggalEnd: useRef(),
     harga: '',
     deskripsi: useRef()
   })
 
-  const [editform, seteditform] = useState({
+  const [addform, setaddform] = useState({
     namaTrip: useRef(),
-    gambar: useRef(),
     tanggalStart: useRef(),
     tanggalEnd: useRef(),
     harga: '',
-    deskripsi: useRef()
+    deskripsi: useRef(),
+    capacity: useRef()
   })
 
   const [indexEdit, setIndexEdit] = useState(0)
@@ -60,7 +67,7 @@ function StickyHeadTable(props) {
   const [product, setProduct] = useState([])
 
   useEffect(()=>{
-    axios.get(`${API_URL}/products`)
+    axios.get(`${API_URL_SQL}/product/getProduct`)
     .then((res)=>{
       setProduct(res.data)
     }).catch((err)=>{
@@ -68,7 +75,35 @@ function StickyHeadTable(props) {
     })
   })
 
+  const onInputFileChange=(e)=>{
+    console.log(e.target.files)
+    if (e.target.files[0]){
+        console.log(e.target.files[0])
+        setBanner(e.target.files[0])
+    }else{
+        console.log('hapus')
+        setBanner(null)
+    }
+  }
+
+  const onInputFileFotoChange=(e, index)=>{
+    console.log(e.target.files)
+    if (e.target.files[0]){
+        console.log(e.target.files[0])
+        let foto = fotos
+        foto.splice(index, 1, e.target.files[0])
+        setfotos([...foto])
+    }else{
+      // codingan untuk hapus foto di view
+        console.log('hapus')
+        let foto = fotos
+        foto.splice(index, 1, null)
+        setfotos([...foto])
+    }
+  }
+
   const onHargaChange=(e)=>{
+    console.log(e.target.value)
     if(e.target.value === ''){
       setaddform({...addform, harga:0})
     }
@@ -76,6 +111,7 @@ function StickyHeadTable(props) {
       if(addform.harga===0){
         setaddform({...addform, harga:e.target.value[1]})
       }else{
+        console.log(e.target.value)
         setaddform({...addform, harga:e.target.value})
       }
     }
@@ -129,49 +165,61 @@ function StickyHeadTable(props) {
     return kata
   }
 
+  const onAddBanyakFoto=()=>{
+    var formData = new FormData()
+    var options = {
+      headers: {
+          'Content-type': 'multipart/form-data'
+      }
+    }
+    fotos.forEach((val)=>{
+      formData.append('image', val)
+    })
+    console.log(idProdSelect)
+    formData.append('data', JSON.stringify({product_id: idProdSelect}))
+    Axios.post(`${API_URL_SQL}/product/addProductFoto`, formData, options)
+    .then((res)=>{
+      console.log(res.data)
+      alert('berhasil')
+    }).catch((err)=>{
+      console.log(err)
+    })
+  }
+
   const onAddDataClick=()=>{
-    var namatrip = addform.namaTrip.current.value
-    var gambar = addform.gambar.current.value
+    var formData = new FormData()
+    var options = {
+        headers: {
+            'Content-type': 'multipart/form-data'
+        }
+    }
+    var namaTrip = addform.namaTrip.current.value
     var tanggalStart = addform.tanggalStart.current.value
     var tanggalEnd = addform.tanggalEnd.current.value
     var harga = addform.harga
     var deskripsi = addform.deskripsi.current.value
-    var obj = {
-      namatrip,
-      gambar,
-      tanggalStart:new Date(tanggalStart).getTime(),
-      tanggalEnd:new Date(tanggalEnd).getTime(),
+    var capacity = addform.capacity.current.value
+    var data = {
+      namaproduct: namaTrip,
+      tanggalmulai:new Date(tanggalStart).getTime(),
+      tanggalberakhir:new Date(tanggalEnd).getTime(),
       harga,
-      deskripsi
+      deskripsi,
+      capacity
     }
-    if(obj.tanggalStart>obj.tanggalEnd || obj.tanggalStart<new Date().getTime()){
+    formData.append('image', banner)
+    formData.append('data', JSON.stringify(data))
+    if(data.tanggalStart>data.tanggalEnd || data.tanggalStart<new Date().getTime()){
       console.log('salahh')
     }else{
-      axios.post(`${API_URL}/products`, obj)
-      .then(()=>{
-        axios.get(`${API_URL}/products`)
-        .then((res)=>{
-          setProduct(res.data)
-          setaddform({...addform, harga: ''})
-          setModal(false)
-        }).catch((err)=>{
-          console.log(err)
-        })
+      axios.post(`${API_URL_SQL}/product/addProduct`, formData, options)
+      .then((res)=>{
+        console.log(res.data)
+        alert('berhasil')
       }).catch((err)=>{
           console.log(err)
       })
     }
-    // if(obj.tanggalStart>obj.tanggalEnd || obj.tanggalStart<new Date().getTime()){
-    //   console.log('salahh')
-    // }else{
-    //   axios.post(`${API_URL}/products`, obj)
-    //   .then((res)=>{
-    //     toggle()
-    //     setaddform({...addform, harga: ''})
-    //   }).catch((err)=>{
-    //       console.log(err)
-    //   })
-    // }
   }
 
   const onDeleteClick=(index, id)=>{
@@ -201,6 +249,8 @@ function StickyHeadTable(props) {
     })
   }
 
+
+
   
   const onEditClick=(index)=>{
     setIndexEdit(index)
@@ -223,52 +273,70 @@ function StickyHeadTable(props) {
     //   harga,
     //   deskripsi
     // }
-    var objEdit = {
-      namatrip: editform.namaTrip.current.value,
-      gambar: editform.gambar.current.value,
-      tanggalStart: editform.tanggalStart.current.value,
-      tanggalEnd: editform.tanggalEnd.current.value,
-      harga: editform.harga,
-      deskripsi: editform.deskripsi.current.value
-    }
-    axios.put(`${API_URL}/products/${id}`, objEdit)
-    .then((res)=>{
-      axios.get(`${API_URL}/products`)
-      .then((res)=>{
-        setProduct(res.data)
-        seteditform({...editform, harga: ''})
-        setModalEdit(false)
-      }).catch((err)=>{
-        console.log(err)
-      })
-    }).catch((err)=>{
-      console.log(err)
-    })
+    // var objEdit = {
+    //   namatrip: editform.namaTrip.current.value,
+    //   gambar: editform.gambar.current.value,
+    //   tanggalStart: editform.tanggalStart.current.value,
+    //   tanggalEnd: editform.tanggalEnd.current.value,
+    //   harga: editform.harga,
+    //   deskripsi: editform.deskripsi.current.value
+    // }
+    // axios.put(`${API_URL}/products/${id}`, objEdit)
+    // .then((res)=>{
+    //   axios.get(`${API_URL}/products`)
+    //   .then((res)=>{
+    //     setProduct(res.data)
+    //     seteditform({...editform, harga: ''})
+    //     setModalEdit(false)
+    //   }).catch((err)=>{
+    //     console.log(err)
+    //   })
+    // }).catch((err)=>{
+    //   console.log(err)
+    // })
   }
 
   // https://indonesia.tripcanvas.co/id/wp-content/uploads/sites/2/2018/10/4-1-Pantai-Sedahan-by-meettheexplorer_.jpg
+
+
   
-  const toggle = () => setModal(!modal)
+  const toggle = () => {
+    setModal(!modal)
+    setBanner(null)
+  }
+
+  const toggleFoto = (id) => {
+    setModalFoto(!modalFoto)
+    setfotos([null])
+    if(id) setIdProdSelect(id)
+  }
+
   const toggleEdit = () => setModalEdit(!modalEdit)
+
+  const tambahFoto=()=>{
+    setfotos([...fotos, null])
+  }
 
   const renderTable=()=>{
     return product.map((val,index)=>{
       return(
         <TableRow key={val.id}>
           <TableCell>{index+1}</TableCell>
-          <TableCell>{val.namatrip}</TableCell>
+          <TableCell>{val.namaproduct}</TableCell>
           <TableCell>
             <div style={{maxWidth:'200px'}}>
-              <img width='100%' heigth='100%' src={val.gambar}/>
+              <img width='100%' heigth='100%' src={API_URL_SQL + val.banner}/>
             </div>
           </TableCell>
-          <TableCell>{dateformat(val.tanggalStart)}</TableCell>
-          <TableCell>{dateformat(val.tanggalEnd )}</TableCell>
+          <TableCell>{dateformat(val.tanggalmulai)}</TableCell>
+          <TableCell>{dateformat(val.tanggalberakhir )}</TableCell>
           <TableCell>{priceFormatter(val.harga)}</TableCell>
+          <TableCell>{val.capacity}</TableCell>
           <TableCell>{val.deskripsi}</TableCell>
           <TableCell>
             <span style={{fontSize:30}} onClick={()=>onDeleteClick(index, val.id)} className='text-danger mr-3'><MdDeleteForever/></span>
             <span style={{fontSize:30}} onClick={()=>onEditClick(index)} className='text-primary ml-3'><BiEditAlt/></span>
+            <span style={{fontSize:30}} onClick={()=>toggleFoto(val.id)} className='text-primary ml-3'><BiPlusCircle/></span>
             </TableCell>
         </TableRow>
       )
@@ -281,7 +349,14 @@ function StickyHeadTable(props) {
             <ModalHeader toggle={toggle}>Add data</ModalHeader>
             <ModalBody>
                 <input type='text' ref={addform.namaTrip} placeholder='Masukkan nama' className='form-control mb-2'/>
-                <input type='text' ref={addform.gambar} placeholder='Masukkan gambar' className='form-control mb-2'/>
+                <input type='file' onChange={onInputFileChange} className='form-control mb-2'/>
+                {
+                  banner ?
+                  <div className='my-2'>
+                    <img src={URL.createObjectURL(banner)} height='200' width='200' alt='foto'/>
+                  </div>
+                  : null
+                }
                 <label className='ml-1'>
                   Tanggal mulai
                 </label>
@@ -290,6 +365,7 @@ function StickyHeadTable(props) {
                   Tanggal berakhir
                 </label>
                 <input type='date' ref={addform.tanggalEnd} placeholder='Masukkan tanggal mulai' className='form-control mb-2'/>
+                <input type='number' ref={addform.capacity} placeholder='Kapasitas' className='form-control mb-2'/>
                 <input type='text' onChange={onHargaChange} value={addform.harga} placeholder='Rp....' className='form-control mb-2'/>
                 <textarea ref={addform.deskripsi} className='form-control mb-2' cols='30' rows='7' placeholder='deskripsi'></textarea>
             </ModalBody>
@@ -323,6 +399,36 @@ function StickyHeadTable(props) {
           </Modal>
           : null
         }
+        <Modal isOpen={modalFoto} toggle={toggleFoto}>
+          <ModalHeader toggle={toggleFoto}>Add Banyak Foto</ModalHeader>
+          <ModalBody>
+            {
+              fotos.map((val, index)=>{
+                if(val){
+                  return (
+                    <>
+                      <CustomInput label={val.name} type='file' onChange={(e)=>onInputFileFotoChange(e,index)} className='form-control mb-2'/>
+                      <div className='my-2'>
+                        <img src={URL.createObjectURL(val)} height='200' width='200' alt="foto"/>
+                      </div>
+                    </>
+                  )
+
+                }
+                return(
+                  <>
+                    <CustomInput type='file' onChange={(e)=>onInputFileFotoChange(e,index)} className='form-control'/>
+                  </>
+                )
+              })
+            }
+            <BiPlusCircle onClick={tambahFoto}/>
+          </ModalBody>
+          <ModalFooter>
+              <Button color="primary" onClick={onAddBanyakFoto}>Save</Button>{' '}
+              <Button color="secondary" onClick={toggleFoto}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
         <Header/>
         <div className='px-4'>
             <ButtonUI className="btn btn-outline-primary my-3" onClick={toggle}>
@@ -339,24 +445,12 @@ function StickyHeadTable(props) {
                     <TableCell>Tanggal Mulai</TableCell>
                     <TableCell>Tanggal Berakhir</TableCell>
                     <TableCell>Harga</TableCell>
+                    <TableCell>Capacity</TableCell>
                     <TableCell style={{width:'300px'}}>Description</TableCell>
                     <TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {/* <TableRow>
-                      <TableCell>1</TableCell>
-                      <TableCell>Jogjakarta</TableCell>
-                      <TableCell>
-                        <div style={{maxWidth:'200px'}}>
-                          <img width='100%' heigth='100%' src='https://indonesia.tripcanvas.co/id/wp-content/uploads/sites/2/2018/10/4-1-Pantai-Sedahan-by-meettheexplorer_.jpg'/>
-                        </div>
-                      </TableCell>
-                      <TableCell>{'2015-10-07'}</TableCell>
-                      <TableCell>{'2015-10-12'}</TableCell>
-                      <TableCell>Rp. 200000</TableCell>
-                      <TableCell>{readMore(ipsum)}</TableCell>
-                    </TableRow> */}
                     {renderTable()}
                 </TableBody>
                 </Table>

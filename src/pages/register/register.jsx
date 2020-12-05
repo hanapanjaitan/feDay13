@@ -3,7 +3,9 @@ import './register.css'
 import { FaUserCircle, FaLock } from 'react-icons/fa';
 import { Link, Redirect } from 'react-router-dom';
 import Axios from 'axios'
-import { API_URL } from '../../helpers/idrformat';
+import { API_URL, API_URL_SQL } from '../../helpers/idrformat';
+import {connect} from 'react-redux'
+import {LoginFunc} from './../../redux/Actions'
 
 
 class Register extends Component {
@@ -14,6 +16,7 @@ class Register extends Component {
         username :'',
         password :'',
         repassword :'',
+        emai:'',
         error:'',
         errorPass: '',
         isLoading: false,
@@ -70,14 +73,14 @@ class Register extends Component {
     }
 
     onRegisterClick=()=>{
-        const {username, password, repassword} = this.state
+        const {username, password, repassword, email} = this.state
         const role = "user"
-        var newUser = {username, password, role}
+        var newUser = {username, password, role, email}
         // var usernameReg = username.current.value
         // var passwordReg = password.current.value
         // var repasswordReg = repassword.current.value
         // console.log(usernameReg, passwordReg, repasswordReg)
-        if(username === '' || password === '' || repassword === ''){
+        if(username === '' || password === '' || repassword === '' || email === ''){
             alert('gaboleh kosong datanya')
         }else{
             Axios.get(`${API_URL}/users?username=${username}`)
@@ -88,12 +91,24 @@ class Register extends Component {
                         alert('password tidak sama')
                     }else{
                         if(this.cekPass(password)){
-                            Axios.post(`${API_URL}/users`, newUser)
-                            .then((res1)=>{
-                                alert('Sukses! berhasil register')
-                            }).catch((err)=>{
-                                console.log(err)
+                            Axios.post(`${API_URL_SQL}/auth/register`, {
+                                username,
+                                password,
+                                email
                             })
+                            .then((res)=>{
+                                alert('Sukses! berhasil register')
+                                localStorage.setItem('id', res.data.id)
+                                this.props.LoginFunc(res.data, [])
+                            }).catch((err)=>{
+                                alert(err.response.data.message) // ambil message yg udh dibikin di backend
+                            })
+                            // Axios.post(`${API_URL}/users`, newUser)
+                            // .then((res1)=>{
+                            //     alert('Sukses! berhasil register')
+                            // }).catch((err)=>{
+                            //     console.log(err)
+                            // })
                         }else{
                             alert(this.state.errorPass)
                         }
@@ -117,6 +132,9 @@ class Register extends Component {
     }
 
     render() { 
+        // if(this.props.isLogin){
+        //     window.location
+        // }
         return ( 
             <div>
                 <div className="mt-5 d-flex justify-content-center">
@@ -140,11 +158,18 @@ class Register extends Component {
                         <div className='p-1' style={{border:'2px outset blue'}}>
                             <input type='password' onChange={(e)=>this.onChangeInput(e,'repassword')} className='username' style={{ border: 'transparent', width: '100%', fontsize: '20px' }}  placeholder='Re-enter Password' />
                         </div>
+
+                        <div className='mt-4'></div>
+
+                        <div className='p-1' style={{border:'2px outset blue'}}>
+                            <input type='email' onChange={(e)=>this.onChangeInput(e,'email')} style={{ border: 'transparent', width: '100%', fontsize: '20px' }}  placeholder='Email' />
+                        </div>
  
                         <div className='mt-4'>
                                 <button className='btn btn-primary' onClick={this.onRegisterClick}>Register</button>
                         </div>
-                        <div className='mt-2'>
+
+                        <div className='mt-4'>
                             sudah punya akun? <Link to='/login'>Login</Link>
                         </div>
                     </div>
@@ -154,4 +179,12 @@ class Register extends Component {
     }
 }
  
-export default Register;
+
+const MapstatetoProps=({Auth})=>{
+    return {
+      ...Auth
+    }
+  }
+  
+export default connect(MapstatetoProps,{LoginFunc}) (Register);
+  

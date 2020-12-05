@@ -5,7 +5,7 @@ import {
     Breadcrumb, BreadcrumbItem, Card, CardImg
 } from 'reactstrap'
 import Axios from 'axios'
-import { API_URL, priceFormatter } from '../../helpers/idrformat';
+import { API_URL, API_URL_SQL, priceFormatter } from '../../helpers/idrformat';
 import { Link } from 'react-router-dom';
 
 class ListProd extends Component {
@@ -13,7 +13,7 @@ class ListProd extends Component {
         Products: []
      }
     componentDidMount(){
-        Axios.get(`${API_URL}/products`)
+        Axios.get(`${API_URL_SQL}/product/getProduct`)
         .then((res)=>{
             this.setState({Products:res.data})
         }).catch((err)=>{
@@ -27,11 +27,11 @@ class ListProd extends Component {
                 <div key={val.id} className="col-md-3 p-2">
                     <Link to={'/products/' + val.id}>
                         <Card className='kartu card-rounded'>
-                            <CardImg className='card-rounded' top width="100%" height={200} src={val.gambar} alt="Card image cap" />
+                            <CardImg className='card-rounded' top width="100%" height={200} src={API_URL_SQL + val.banner} alt="Card image cap" />
                             <div className='overlay card-rounded'>
                                 <div className='text'>
                                     <div>
-                                        {val.namatrip}
+                                        {val.namaproduct}
                                     </div>
                                     <div>
                                         {priceFormatter(val.harga)}

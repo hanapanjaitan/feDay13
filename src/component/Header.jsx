@@ -14,7 +14,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Badge from '@material-ui/core/Badge';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import {LogoutThunk} from './../redux/Actions'
-import {HOME_URL} from './../helpers/idrformat'
+import {API_URL_SQL, HOME_URL} from './../helpers/idrformat'
 import Box from '@material-ui/core/Box';
 import Popover from '@material-ui/core/Popover';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
@@ -66,10 +66,10 @@ function ButtonAppBar(props) {
       return (
         <div className='d-flex '>
           <div className='m-2' style={{maxWidth:'200px'}}>
-            <img width='100%' heigth='100%' src={val.product.gambar} alt={val.product.namatrip}/>
+            <img width='100%' heigth='100%' src={API_URL_SQL + val.banner} alt={val.namaproduct}/>
           </div>
           <div className='m-2'>
-            {val.product.namatrip}
+            {val.namaproduct}
           </div>
           <div className='m-2'>
             qty: {val.qty}
@@ -79,6 +79,7 @@ function ButtonAppBar(props) {
     })
   }
 
+  console.log(props.cart)
   return (
     <div className={classes.root}>
       <AppBar className={classes.warna} position="static">
@@ -131,7 +132,7 @@ function ButtonAppBar(props) {
                         props.cart.length ? 
                         <>
                         {renderCart()} 
-                        <Link to='carts'>
+                        <Link to='/carts'>
                           <ButtonUi>Go to cart</ButtonUi>
                         </Link>
                         </>

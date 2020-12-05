@@ -17,28 +17,28 @@ class Setting extends Component {
      }
 
     onSaveClick=()=>{ // bug mas ini saya bingung kenapa
-        // const {repassword, password} = this.state
-        // var passwordInp = password.current.value
-        // var repasswordInp = repassword.current.value
-        // // console.log(usernameReg, passwordReg, repasswordReg)
-        // if(passwordInp === '' || repasswordInp === ''){
-        //     alert('gaboleh kosong datanya')
-        // }else{
-        //     // http://localhost:4000/users/1
-        //     if(passwordInp !== repasswordInp){
-        //         alert('password tidak sama')
-        //     }else{
-        //         Axios.patch(`${API_URL}/users?${this.props.id}`,{
-        //             password: passwordInp
-        //         })
-        //         .then((res)=>{
-        //             console.log(res.data.length)
-        //             alert('berhasil updet password')
-        //         }).catch((err)=>{
-        //             console.log(err)
-        //         })
-        //     }
-        // }
+        const {repassword, password} = this.state
+        var passwordInp = password.current.value
+        var repasswordInp = repassword.current.value
+        // console.log(usernameReg, passwordReg, repasswordReg)
+        if(passwordInp === '' || repasswordInp === ''){
+            alert('gaboleh kosong datanya')
+        }else{
+            // http://localhost:4000/users/1
+            if(passwordInp !== repasswordInp){
+                alert('password tidak sama')
+            }else{
+                Axios.patch(`${API_URL}/users/${this.props.id}`,{
+                    password: passwordInp
+                })
+                .then((res)=>{
+                    console.log(res.data.length)
+                    alert('berhasil updet password')
+                }).catch((err)=>{
+                    console.log(err)
+                })
+            }
+        }
     }
 
     render() { 
@@ -59,17 +59,17 @@ class Setting extends Component {
 
                         <h3><FaLock/></h3>
                         <div className='p-1' style={{border:'2px outset blue'}}>
-                            <input type='password' inputRef={this.state.password} className='username' style={{ border: 'transparent', width: '100%', fontsize: '20px' }} placeholder='Password' />
+                            <input type='password' ref={this.state.password} className='username' style={{ border: 'transparent', width: '100%', fontsize: '20px' }} placeholder='Password' />
                         </div>
 
                         <div className='mt-4'></div>
 
                         <div className='p-1' style={{border:'2px outset blue'}}>
-                            <input type='password' inputRef={this.state.repassword} className='username' style={{ border: 'transparent', width: '100%', fontsize: '20px' }}  placeholder='Re-enter Password' />
+                            <input type='password' ref={this.state.repassword} className='username' style={{ border: 'transparent', width: '100%', fontsize: '20px' }}  placeholder='Re-enter Password' />
                         </div>
  
                         <div className='mt-4'>
-                                <button onClick={this.onSaveClick()} className='btn btn-primary' >Save</button>
+                                <button onClick={this.onSaveClick} className='btn btn-primary' >Save</button>
                         </div>
                     </div>
                 </div>

@@ -16,7 +16,7 @@ import ProfileAdmin from './pages/admin/profileAdmin'
 import {connect} from 'react-redux'
 import {LoginFunc} from './redux/Actions'
 import Axios from 'axios'
-import { API_URL } from './helpers/idrformat';
+import { API_URL, API_URL_SQL } from './helpers/idrformat';
 import Notfound from './pages/notfound'
 import Listprod from './pages/Listprod' //kalau ga nunjuk nama file, auto nunjuk index.jsx
 import DetailProd from './pages/detailprod'
@@ -35,33 +35,32 @@ function App(props) {
   useEffect (()=>{
     var id = localStorage.getItem('id')
     if (id){
-      Axios.get(`${API_URL}/users/${id}`)
+      Axios.get(`${API_URL_SQL}/auth/keepLogin/${id}`)
       .then((res)=>{
-        Axios.get(`${API_URL}/carts`,{
-          params:{
-            userId: res.data.id,
-            _expand:'product'
-          }
-        }).then((res1)=>{
-          props.LoginFunc(res.data, res1.data)
-          // Axios.get(`${API_URL}/transactions`,{
-          //   params:{
-          //       userId: res.data.id,
-          //       _embed:'transactionDetails'
-          //   }
-          // }).then((res2)=>{
-          //   props.LoginFunc(res.data, res1.data, res2.data)
-          // }).catch((err)=>{
-          //   console.log(err)
-          // })
-        }).catch((err)=>{
-          console.log(err)
-        }).finally(()=>{
-          setLoading(false)
-        })
+        console.log(res.data)
+        props.LoginFunc(res.data.datauser, res.data.cart)
       }).catch((err)=>{
         console.log(err)
+      }).finally(()=>{
+        setLoading(false)
       })
+      // Axios.get(`${API_URL}/users/${id}`)
+      // .then((res)=>{
+      //   Axios.get(`${API_URL}/carts`,{
+      //     params:{
+      //       userId: res.data.id,
+      //       _expand:'product'
+      //     }
+      //   }).then((res1)=>{
+      //     props.LoginFunc(res.data, res1.data)
+      //   }).catch((err)=>{
+      //     console.log(err)
+      //   }).finally(()=>{
+      //     setLoading(false)
+      //   })
+      // }).catch((err)=>{
+      //   console.log(err)
+      // })
     }else{
       setLoading(false)
     }
